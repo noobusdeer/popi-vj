@@ -9,7 +9,8 @@ fn main() {
 struct Model {}
 
 fn model(app: &App) -> Model {
-    let _window = app.new_window().with_dimensions(720, 720).with_title("vj").build().unwrap();
+    //let _monitor = nannou::MonitorId { /* fields */ };
+    let _window = app.new_window()/*.with_fullscreen(_monitor)*/.with_title("vj").build().unwrap();
     Model {}
 }
 
