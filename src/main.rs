@@ -10,8 +10,9 @@ struct Model {}
 
 fn model(app: &App) -> Model {
     //let _monitor = nannou::MonitorId { /* fields */ };
-    let _window = app.new_window()/*.with_fullscreen(_monitor)*/.with_title("vj").build().unwrap();
-    app.set_fullscreen_on_shortcut(true);
+    let _window = app.new_window().with_title("vj").build().unwrap();
+    //_window.set_fullscreen(app.main_window().current_monitor());
+    //app.main_window().set_maximized(true);
     Model {}
 }
 
