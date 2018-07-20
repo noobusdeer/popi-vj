@@ -10,9 +10,11 @@ struct Model {}
 
 fn model(app: &App) -> Model {
     let _window = app.new_window().with_title("vj").build().unwrap();
-
+    
     // Uncomment for fullscreen linux start
+    // 
     // app.main_window().set_fullscreen(Some(app.main_window().current_monitor()));
+    //
     
     Model {}
 }

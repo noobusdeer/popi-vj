@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Gleb Storozhik <hello@noobusdeer.com>"]
 
 [dependencies]
-nannou = "0.7.0"
+nannou = "0.8.0"
