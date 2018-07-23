@@ -43,12 +43,17 @@ fn event(_app: &App, model: Model, event: Event) -> Model {
 fn view(app: &App, _model: &Model, frame: Frame) -> Frame {
     let draw = app.draw();
     draw.background().color(BLACK);
-    
-    let rng = geom::Range::new(-50.0, 50.0);
-    let cub = geom::Cuboid{x: rng, y: rng, z: rng};
-    let tris = cub.triangles_iter().map(|tri| {
+
+    let range = 1000.0;
+    let bg = geom::Quad([
+        pt2(-(range / 2.0), range / 2.0),
+        pt2(range / 2.0, range / 2.0), 
+        pt2(range / 2.0, -(range / 2.0)), 
+        pt2(-(range / 2.0), -(range / 2.0))]);
+
+    let tris = bg.triangles_iter().map(|tri| {
             tri.map_vertices(|v| {
-                let color = Rgba::new(1.0, 0.0, 0.0, 1.0);
+                let color = Rgba::new(0.0, 1.0, 1.0, 1.0);
                 geom::vertex::Rgba(v, color)
             })
         });
