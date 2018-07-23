@@ -43,6 +43,9 @@ fn event(_app: &App, model: Model, event: Event) -> Model {
 fn view(app: &App, _model: &Model, frame: Frame) -> Frame {
     let draw = app.draw();
     draw.background().color(BLACK);
+    let rng = geom::Range::new(-50.0, 50.0);
+    let cub = geom::Cuboid{x: rng, y: rng, z: rng};
+    draw.mesh().tris(cub.triangles_iter());
     draw.to_frame(app, &frame).unwrap();
     frame
 }
