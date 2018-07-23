@@ -10,7 +10,7 @@ struct Model {}
 
 fn model(app: &App) -> Model {
     let _window = app.new_window().with_title("vj").build().unwrap();    
-    app.main_window().set_fullscreen(Some(app.main_window().current_monitor()));
+    //app.main_window().set_fullscreen(Some(app.main_window().current_monitor()));
     Model {}
 }
 
@@ -41,19 +41,20 @@ fn event(_app: &App, model: Model, event: Event) -> Model {
 }
 
 fn view(app: &App, _model: &Model, frame: Frame) -> Frame {
+    let win = app.window_rect();
     let draw = app.draw();
     draw.background().color(BLACK);
 
-    let range = 1000.0;
     let bg = geom::Quad([
-        pt2(-(range / 2.0), range / 2.0),
-        pt2(range / 2.0, range / 2.0), 
-        pt2(range / 2.0, -(range / 2.0)), 
-        pt2(-(range / 2.0), -(range / 2.0))]);
+        pt2(-win.right() / 2.0, win.bottom() / 2.0),
+        pt2(win.right() / 2.0, win.bottom() / 2.0), 
+        pt2(win.right() / 2.0, -win.bottom() / 2.0), 
+        pt2(-win.right() / 2.0, -win.bottom() / 2.0)
+        ]);
 
     let tris = bg.triangles_iter().map(|tri| {
             tri.map_vertices(|v| {
-                let color = Rgba::new(0.0, 1.0, 1.0, 1.0);
+                let color = Rgba::new(1.0, 1.0, 1.0, 1.0);
                 geom::vertex::Rgba(v, color)
             })
         });
