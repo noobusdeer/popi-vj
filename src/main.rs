@@ -1,5 +1,10 @@
 #[macro_use] extern crate glium;
 extern crate nannou;
+extern crate rustfft;
+
+use rustfft::FFTplanner;
+use rustfft::num_complex::Complex;
+use rustfft::num_traits::Zero;
 
 use nannou::ui::prelude::*;
 use nannou::prelude::*;
@@ -14,6 +19,9 @@ struct Model {
     time_inc: f32,
     window: WindowId,
     time: f32,
+    planner: FFTplanner<f32>,
+    input: Vec<Complex<f32>>,
+    output: Vec<Complex<f32>>,
 }
 
 struct Ids {
@@ -22,6 +30,11 @@ struct Ids {
 
 
 fn model(app: &App) -> Model {
+    let mut input:  Vec<Complex<f32>> = vec![Complex::zero(); 1234];
+    let mut output: Vec<Complex<f32>> = vec![Complex::zero(); 1234];
+
+    let mut planner = FFTplanner::new(false);
+    
     app.main_window().hide();
     let window = app.new_window().with_vsync(true).with_title("pivj").with_dimensions(800,600).build().unwrap();
     let mut ui = app.new_ui().window(window).build().unwrap();
@@ -30,7 +43,7 @@ fn model(app: &App) -> Model {
     };
     let time = 0.0;
     let time_inc = 0.2;
-    Model {  ui,  ids, time_inc, window, time }
+    Model {  ui,  ids, time_inc, window, time, planner, input, output}
 }
 
 fn event(_app: &App, mut model: Model, event: Event) -> Model {
@@ -74,8 +87,16 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
         },
 
         Event::Update(_dt) => {
-            let ui = &mut model.ui.set_widgets();
+            //let fft = model.planner.plan_fft(1234);
+            //fft.process(&mut model.input, &mut model.output);
+            
+            //let mut sum = 0.0;
+            //for x in &model.input {
+             //   sum += x.norm();
+            //}
+            // println!("sum {}", sum);
 
+            let ui = &mut model.ui.set_widgets();
             fn slider(val: f32, min: f32, max: f32) -> widget::Slider<'static, f32> {
                 widget::Slider::new(val, min, max)
                     .w_h(200.0, 30.0)
@@ -92,6 +113,7 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
             {
                 model.time_inc = value as f32;
             }
+
             model.time += model.time_inc;
         },
 

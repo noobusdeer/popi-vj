@@ -6,3 +6,4 @@ authors = ["Gleb Storozhik <hello@noobusdeer.com>"]
 [dependencies]
 nannou = "0.8.0"
 glium = "*"
+rustfft = "2.0.0"
