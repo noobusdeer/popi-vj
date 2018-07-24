@@ -1,65 +1,124 @@
+#[macro_use] extern crate glium;
 extern crate nannou;
 
 use nannou::prelude::*;
 
 fn main() {
-    nannou::app(model, event, view).run();
+    nannou::run(model, event, view);
 }
 
-struct Model {}
+struct Model {
+    window: WindowId,
+    time: f32,
+}
 
 fn model(app: &App) -> Model {
-    let _window = app.new_window().with_title("vj").build().unwrap();    
-    //app.main_window().set_fullscreen(Some(app.main_window().current_monitor()));
-    Model {}
+    let window = app.new_window().with_vsync(true).with_title("pivj").with_dimensions(640,480).build().unwrap();
+    let time = 0.0;
+
+    Model { window, time }
 }
 
-fn event(_app: &App, model: Model, event: Event) -> Model {
+fn event(_app: &App, mut model: Model, event: Event) -> Model {
     match event {
-        Event::WindowEvent {
-            simple: Some(event),
-            ..
-        } => match event {
-            Moved(_pos) => {}
-            KeyPressed(_key) => {}
-            KeyReleased(_key) => {}
-            MouseMoved(_pos) => {}
-            MouseDragged(_pos, _button) => {}
-            MousePressed(_button) => {}
-            MouseReleased(_button) => {}
-            MouseEntered => {}
-            MouseExited => {}
-            Resized(_size) => {}
+        Event::WindowEvent { simple: Some(event), .. } => match event {
+
+            Moved(_pos) => {
+            },
+
+            KeyPressed(_key) => {
+            },
+
+            KeyReleased(_key) => {
+            },
+
+            MouseMoved(_pos) => {
+            },
+
+            MouseDragged(_pos, _button) => {
+            },
+
+            MousePressed(_button) => {
+            },
+
+            MouseReleased(_button) => {
+            },
+
+            MouseEntered => {
+            },
+
+            MouseExited => {
+            },
+
+            Resized(_size) => {
+            },
+
             _other => (),
         },
 
-        Event::Update(_dt) => {}
+        Event::Update(_dt) => {
+            model.time += 1.0;
+        },
 
         _ => (),
     }
     model
 }
 
-fn view(app: &App, _model: &Model, frame: Frame) -> Frame {
-    let win = app.window_rect();
-    let draw = app.draw();
-    draw.background().color(BLACK);
+fn view(app: &App, model: &Model, frame: Frame) -> Frame {
+    // Our app only has one window, so retrieve this part of the `Frame`. Color it gray.
+    frame.window(model.window).unwrap().clear_color(0.0, 0.0, 0.0, 1.0);
 
-    let bg = geom::Quad([
-        pt2(-win.right() / 2.0, win.bottom() / 2.0),
-        pt2(win.right() / 2.0, win.bottom() / 2.0), 
-        pt2(win.right() / 2.0, -win.bottom() / 2.0), 
-        pt2(-win.right() / 2.0, -win.bottom() / 2.0)
-        ]);
+    let rect = nannou::geom::Rect::from_xy_wh(Point2 { x:0.0, y: 0.0 }, Vector2 {x: 1.0, y: 1.0 });
+    // Get the 2 triangles to form a rectangle 
+    let (tri_a, tri_b) = rect.triangles();
 
-    let tris = bg.triangles_iter().map(|tri| {
-            tri.map_vertices(|v| {
-                let color = Rgba::new(1.0, 1.0, 1.0, 1.0);
-                geom::vertex::Rgba(v, color)
-            })
-        });
-    draw.mesh().tris(tris);
-    
-    draw.to_frame(app, &frame).unwrap();
+    #[derive(Copy, Clone)]
+    struct Vertex {
+        position: [f32; 2],
+    }
+    implement_vertex!(Vertex, position);
+
+    let shape: Vec<Vertex> = tri_a.iter()
+        .chain(tri_b.iter())
+        .map(|p| Vertex { position: [p.x as f32, p.y as f32] })
+        .collect();
+
+    let win = app.window(model.window).unwrap();
+    let display = win.inner_glium_display();
+    let vertex_buffer = nannou::glium::VertexBuffer::new(display, &shape).unwrap();
+    let indices = nannou::glium::index::NoIndices(nannou::glium::index::PrimitiveType::TrianglesList);
+
+    let vertex_shader_src = r#"
+        #version 330
+
+        in vec2 position;
+        out vec2 uv;
+
+        void main() {
+            uv = position;
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    "#;
+
+    let fragment_shader_src = r#"
+        #version 330
+
+        out vec4 color;
+        in vec2 uv;
+
+        uniform float iTime;
+
+        void main() {
+            color = vec4(abs(sin(abs(uv.x)+iTime*0.3)), cos(abs(uv.y)+iTime*0.05), sin(iTime*0.1), 1.0);
+        }
+    "#;
+
+
+    let program = nannou::glium::Program::from_source(display, vertex_shader_src, fragment_shader_src, None).unwrap();
+
+    frame.window(model.window).unwrap().draw(&vertex_buffer, &indices, &program, &uniform! { iTime: model.time },
+            &Default::default()).unwrap();
+    // Return the drawn frame.
     frame
 }

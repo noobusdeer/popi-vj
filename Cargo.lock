@@ -963,6 +963,7 @@ dependencies = [
 name = "po-pivj"
 version = "0.1.0"
 dependencies = [
+ "glium 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nannou 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
