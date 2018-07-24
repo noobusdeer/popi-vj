@@ -1,6 +1,7 @@
 #[macro_use] extern crate glium;
 extern crate nannou;
 
+use nannou::ui::prelude::*;
 use nannou::prelude::*;
 
 fn main() {
@@ -8,15 +9,29 @@ fn main() {
 }
 
 struct Model {
+    ui: Ui,
+    ids: Ids,
+    time_inc: f32,
     window: WindowId,
     time: f32,
 }
 
-fn model(app: &App) -> Model {
-    let window = app.new_window().with_vsync(true).with_title("pivj").with_dimensions(640,480).build().unwrap();
-    let time = 0.0;
+struct Ids {
+    time_inc: widget::Id,
+}
 
-    Model { window, time }
+
+fn model(app: &App) -> Model {
+    
+    let window = app.new_window().with_vsync(true).with_title("pivj").with_dimensions(1920,1080).build().unwrap();
+    app.main_window().hide();
+    let mut ui = app.new_ui().window(window).build().unwrap();
+    let ids = Ids {
+        time_inc: ui.generate_widget_id(),
+    };
+    let time = 0.0;
+    let time_inc = 0.2;
+    Model {  ui,  ids, time_inc, window, time }
 }
 
 fn event(_app: &App, mut model: Model, event: Event) -> Model {
@@ -57,7 +72,25 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
         },
 
         Event::Update(_dt) => {
-            model.time += 1.0;
+            let ui = &mut model.ui.set_widgets();
+
+            fn slider(val: f32, min: f32, max: f32) -> widget::Slider<'static, f32> {
+                widget::Slider::new(val, min, max)
+                    .w_h(200.0, 30.0)
+                    .label_font_size(15)
+                    .rgb(0.3, 0.3, 0.3)
+                    .label_rgb(1.0, 1.0, 1.0)
+                    .border(0.0)
+            }
+
+            for value in slider(model.time_inc as f32, 0.0, 1.0)
+                .top_left_with_margin(20.0)
+                .label("Resolution")
+                .set(model.ids.time_inc, ui)
+            {
+                model.time_inc = value as f32;
+            }
+            model.time += model.time_inc;
         },
 
         _ => (),
@@ -69,7 +102,7 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
     // Our app only has one window, so retrieve this part of the `Frame`. Color it gray.
     frame.window(model.window).unwrap().clear_color(0.0, 0.0, 0.0, 1.0);
 
-    let rect = nannou::geom::Rect::from_xy_wh(Point2 { x:0.0, y: 0.0 }, Vector2 {x: 1.0, y: 1.0 });
+    let rect = nannou::geom::Rect::from_xy_wh(Point2 { x:0.0, y: 0.0 }, Vector2 {x: 2.0, y: 2.0 });
     // Get the 2 triangles to form a rectangle 
     let (tri_a, tri_b) = rect.triangles();
 
@@ -120,5 +153,6 @@ fn view(app: &App, model: &Model, frame: Frame) -> Frame {
     frame.window(model.window).unwrap().draw(&vertex_buffer, &indices, &program, &uniform! { iTime: model.time },
             &Default::default()).unwrap();
     // Return the drawn frame.
+    model.ui.draw_to_frame(app, &frame).unwrap();
     frame
 }
