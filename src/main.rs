@@ -22,9 +22,8 @@ struct Ids {
 
 
 fn model(app: &App) -> Model {
-    
-    let window = app.new_window().with_vsync(true).with_title("pivj").with_dimensions(1920,1080).build().unwrap();
     app.main_window().hide();
+    let window = app.new_window().with_vsync(true).with_title("pivj").with_dimensions(800,600).build().unwrap();
     let mut ui = app.new_ui().window(window).build().unwrap();
     let ids = Ids {
         time_inc: ui.generate_widget_id(),
@@ -42,6 +41,9 @@ fn event(_app: &App, mut model: Model, event: Event) -> Model {
             },
 
             KeyPressed(_key) => {
+                if _key == Key::Space {
+                    _app.main_window().set_fullscreen(Some(_app.main_window().current_monitor()));
+                }
             },
 
             KeyReleased(_key) => {
